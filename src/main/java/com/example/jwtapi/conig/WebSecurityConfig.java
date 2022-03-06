@@ -56,7 +56,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf().disable()
         //dont authenticate this particular request, i.e no jwt for this particular request
-        .authorizeRequests().antMatchers("/authenticate").permitAll()
+        .authorizeRequests().antMatchers("/authenticate", "/register").permitAll()
         //all other requests to be authenticated
         .anyRequest().authenticated().and()
         //we use stateless session, because session wont be used to store user's state
