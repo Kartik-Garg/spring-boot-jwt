@@ -5,6 +5,8 @@ import java.util.Objects;
 import com.example.jwtapi.conig.JwtTokenUtil;
 import com.example.jwtapi.model.JwtRequest;
 import com.example.jwtapi.model.JwtResponse;
+import com.example.jwtapi.model.UserDto;
+import com.example.jwtapi.service.JwtUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,27 +36,29 @@ public class JwtAuthenticationController {
 	private JwtTokenUtil jwtTokenUtil;
 
 	@Autowired
-	private UserDetailsService jwtInMemoryUserDetailsService;
+	private JwtUserDetailsService userDetailsService;
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public ResponseEntity<?> generateAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
-			throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
 		authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
 
-		final UserDetails userDetails = jwtInMemoryUserDetailsService
-				.loadUserByUsername(authenticationRequest.getUserName());
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUserName());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
 		return ResponseEntity.ok(new JwtResponse(token));
 	}
 
-	private void authenticate(String username, String password) throws Exception {
-		Objects.requireNonNull(username);
-		Objects.requireNonNull(password);
+	//uri to save user to db
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public ResponseEntity<?> saveUser(@RequestBody UserDto user) throws Exception{
+		return ResponseEntity.ok(userDetailsService.save(user));
+	}
+
+	private void authenticate(String userName, String password) throws Exception {
 		try {
-			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
 		} catch (DisabledException e) {
 			throw new Exception("USER_DISABLED", e);
 		} catch (BadCredentialsException e) {
