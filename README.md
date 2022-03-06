@@ -17,3 +17,8 @@ How to run and use it:
 7) When we trigger authenticate API, our application will look in to the DB to see if the passed username and password exists in the DB or not
 8) If yes, then a JWT token is retrieved, which can be passed in the header section of greeting API with key as Authorization and value as Bearer token
 9) If the token is correct, then it will return or print a message on the postman saying welcome!    
+
+
+NOTE: JAR is also present in the given project and it is present at root level in a folder called build-jar
+
+Please feel free, to refer it and use this project as you wish, Just don't forget to either star it or fork it :D
