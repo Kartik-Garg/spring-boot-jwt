@@ -26,45 +26,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
-    
-    //authentication manager is used to authenticate the username and password
-    @Autowired
-    private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtTokenUtil jwtTokenUtil;
+	@Autowired
+	private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserDetailsService jwtInMemoryUserDetailsService;
+	@Autowired
+	private JwtTokenUtil jwtTokenUtil;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/authenticate")
-    public ResponseEntity<?> generateAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
-    throws Exception{
-        //response enity allows us to access response header, body everything but responsebody 
-        //allows us to just add response to the body of the HTTP response
-        
-            authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
+	@Autowired
+	private UserDetailsService jwtInMemoryUserDetailsService;
 
-            //basically this takes in memory jwt and gets username 
-            final UserDetails userDetails = jwtInMemoryUserDetailsService.loadUserByUsername(authenticationRequest.getUserName);
+	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+	public ResponseEntity<?> generateAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
+			throws Exception {
 
-            //call the generateToken method in JwtTokenUtil class
-            final String token = jwtTokenUtil.generateToken(userDetails);
-            
-           // return ResponseEntity.ok(new JwtResponse(token));
-           return ResponseEntity.ok(new JwtResponse(token));
-        }
+		authenticate(authenticationRequest.getUserName(), authenticationRequest.getPassword());
 
-        private void authenticate(String userName, String password) throws Exception{
-            Objects.requireNonNull(userName);
-            Objects.requireNonNull(password);
+		final UserDetails userDetails = jwtInMemoryUserDetailsService
+				.loadUserByUsername(authenticationRequest.getUserName());
 
-            try{
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
-            }catch(DisabledException e){
-                throw new Exception("USER_DISABLED", e);
-            } catch(BadCredentialsException e){
-                throw new Exception("INVALID_CREDENTIALS", e);
-            }
-        }
+		final String token = jwtTokenUtil.generateToken(userDetails);
+
+		return ResponseEntity.ok(new JwtResponse(token));
+	}
+
+	private void authenticate(String username, String password) throws Exception {
+		Objects.requireNonNull(username);
+		Objects.requireNonNull(password);
+		try {
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+		} catch (DisabledException e) {
+			throw new Exception("USER_DISABLED", e);
+		} catch (BadCredentialsException e) {
+			throw new Exception("INVALID_CREDENTIALS", e);
+		}
+	}
+
 }
+
